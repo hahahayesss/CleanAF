@@ -6,3 +6,8 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
+
+dependencies {
+    def rxJavaVersion = "3.0.0"
+    implementation "io.reactivex.rxjava3:rxjava:${rxJavaVersion}"
+}
