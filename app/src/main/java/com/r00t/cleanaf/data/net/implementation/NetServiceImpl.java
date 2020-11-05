@@ -4,10 +4,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.r00t.cleanaf.data.net.retrofit.RemoteService;
 import com.r00t.cleanaf.data.exception.NetworkConnectionException;
 import com.r00t.cleanaf.data.net.abstaction.NetService;
 import com.r00t.cleanaf.data.net.mappers.NetMapper;
+import com.r00t.cleanaf.data.net.retrofit.RemoteService;
 import com.r00t.cleanaf.domain.model.Product;
 
 import java.util.List;
