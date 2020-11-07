@@ -1,14 +1,10 @@
-package com.r00t.cleanaf.presentation;
+package com.r00t.cleanaf.presentation.view.activity;
 
 import android.os.Bundle;
 import android.widget.Button;
 
 import com.r00t.cleanaf.R;
-import com.r00t.cleanaf.presentation.view.activity.BaseActivity;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
-@AndroidEntryPoint
 public class MainActivity extends BaseActivity {
     private Button button;
 

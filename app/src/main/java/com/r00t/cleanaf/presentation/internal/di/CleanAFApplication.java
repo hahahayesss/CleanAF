@@ -1,4 +1,4 @@
-package com.r00t.cleanaf.presentation;
+package com.r00t.cleanaf.presentation.internal.di;
 
 import android.app.Application;
 
