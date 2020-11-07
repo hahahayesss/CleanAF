@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.Button;
 
 import com.r00t.cleanaf.R;
+import com.r00t.cleanaf.presentation.view.fragment.ProductListFragment;
 
 public class MainActivity extends BaseActivity {
     private Button button;
@@ -13,7 +14,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        button = findViewById(R.id.button);
-        button.setOnClickListener(v -> navigator.navigateToProductsList(this));
+        if (savedInstanceState == null)
+            addFragment(R.id.mainView, ProductListFragment.newInstance());
     }
 }

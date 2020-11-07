@@ -5,45 +5,53 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.r00t.cleanaf.R;
 import com.r00t.cleanaf.domain.model.Product;
 import com.r00t.cleanaf.presentation.presenter.ProductListPresenter;
 import com.r00t.cleanaf.presentation.view.ProductListView;
+import com.r00t.cleanaf.presentation.view.adapter.ProductAdapter;
 
 import java.util.Collection;
-import java.util.Objects;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ProductListFragment extends BaseFragment implements ProductListView {
     @Inject
-    private ProductListPresenter productListPresenter;
+    protected ProductListPresenter productListPresenter;
+    @Inject
+    protected ProductAdapter productAdapter;
 
-    public interface ProductListListener {
-        void onProductClicked(Product product);
-    }
+    private RecyclerView productListRecyclerView;
+    private ProgressBar progressBar;
+    private Button retryButton;
 
-    private ProductListListener productListListener;
-
-    public ProductListFragment() {
-        setRetainInstance(true);
+    public static ProductListFragment newInstance() {
+        ProductListFragment fragment = new ProductListFragment();
+        // Bundle args = new Bundle();
+        // args.putString("ARG_PARAM1", param1);
+        // args.putString("ARG_PARAM2", param2);
+        // fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (getActivity() instanceof ProductListListener)
-            productListListener = (ProductListListener) getActivity();
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.xxx, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_product_list, container, false);
+        productListRecyclerView = view.findViewById(R.id.productListRecyclerView);
+        progressBar = view.findViewById(R.id.progressBar);
+        retryButton = view.findViewById(R.id.retryButton);
         setupRecyclerView();
         return view;
     }
@@ -53,7 +61,8 @@ public class ProductListFragment extends BaseFragment implements ProductListView
         super.onViewCreated(view, savedInstanceState);
         productListPresenter.setView(this);
         if (savedInstanceState == null)
-            loadUserList();
+            productListPresenter.initialize();
+        retryButton.setOnClickListener(v -> productListPresenter.initialize());
     }
 
     @Override
@@ -71,55 +80,62 @@ public class ProductListFragment extends BaseFragment implements ProductListView
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //TODO:
+        productListRecyclerView.setAdapter(null);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        productListListener = null;
+    public void onDestroy() {
+        super.onDestroy();
+        productListPresenter.destroy();
     }
 
     @Override
-    public void renderProductList(Collection<Product> productCollection) {
+    public void showContent() {
+        productListRecyclerView.setVisibility(View.VISIBLE);
+    }
 
+    @Override
+    public void hideContent() {
+        productListRecyclerView.setVisibility(View.GONE);
     }
 
     @Override
     public void showLoading() {
-
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideLoading() {
-
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void showRetry() {
-
+        retryButton.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideRetry() {
+        retryButton.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void renderProductList(Collection<Product> productCollection) {
+        productAdapter.setProductList((List<Product>) productCollection);
     }
 
     @Override
     public void showError(String message) {
-
+        showToadMessage(message);
     }
 
     @Override
     public Context context() {
-        return Objects.requireNonNull(getActivity()).getApplicationContext();
+        return getActivity().getApplicationContext();
     }
 
     private void setupRecyclerView() {
-
-    }
-
-    private void loadUserList() {
-
+        productListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        productListRecyclerView.setAdapter(productAdapter);
     }
 }

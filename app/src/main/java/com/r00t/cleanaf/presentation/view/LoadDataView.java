@@ -4,6 +4,10 @@ import android.content.Context;
 
 public interface LoadDataView {
 
+    void showContent();
+
+    void hideContent();
+
     void showLoading();
 
     void hideLoading();

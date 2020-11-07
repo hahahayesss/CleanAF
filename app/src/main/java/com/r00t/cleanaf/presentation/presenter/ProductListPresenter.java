@@ -8,7 +8,6 @@ import com.r00t.cleanaf.presentation.exception.ErrorMessageFactory;
 import com.r00t.cleanaf.presentation.internal.di.DefaultObserver;
 import com.r00t.cleanaf.presentation.view.ProductListView;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -16,12 +15,13 @@ import javax.inject.Inject;
 import io.reactivex.annotations.NonNull;
 
 public class ProductListPresenter implements Presenter {
-    private GetProductList getProductList;
+    private GetProductList getProductListUseCase;
+
     private ProductListView view;
 
     @Inject
-    public ProductListPresenter(GetProductList getProductList) {
-        this.getProductList = getProductList;
+    public ProductListPresenter(GetProductList getProductListUseCase) {
+        this.getProductListUseCase = getProductListUseCase;
     }
 
     @Override
@@ -34,30 +34,31 @@ public class ProductListPresenter implements Presenter {
 
     @Override
     public void destroy() {
-        getProductList.dispose();
+        getProductListUseCase.dispose();
         view = null;
-    }
-
-    public void setView(ProductListView view) {
-        this.view = view;
     }
 
     public void initialize() {
         loadProductList();
     }
 
+    public void setView(ProductListView view) {
+        this.view = view;
+    }
+
     private void loadProductList() {
         hideViewRetry();
+        hideViewContent();
         showViewLoading();
         getProductList();
     }
 
-    private void showViewLoading() {
-        view.showLoading();
+    private void showViewContent() {
+        view.showContent();
     }
 
-    private void hideViewLoading() {
-        view.hideLoading();
+    private void hideViewContent() {
+        view.hideContent();
     }
 
     private void showViewRetry() {
@@ -68,36 +69,47 @@ public class ProductListPresenter implements Presenter {
         view.hideRetry();
     }
 
+    private void showViewLoading() {
+        view.showLoading();
+    }
+
+    private void hideViewLoading() {
+        view.hideLoading();
+    }
+
     private void showErrorMessage(ErrorBundle errorBundle) {
         String errorMessage = ErrorMessageFactory.create(view.context(), errorBundle.getException());
         view.showError(errorMessage);
     }
 
-    private void showProductsCollectionView(Collection<Product> productCollection) {
-        view.renderProductList(productCollection);
+    private void showProductListInView(List<Product> productList) {
+        view.renderProductList(productList);
     }
 
     private void getProductList() {
-        getProductList.execute(new ProductListObserver(), null);
+        getProductListUseCase.execute(new ProductListObserver(), null);
     }
 
     private class ProductListObserver extends DefaultObserver<List<Product>> {
 
         @Override
         public void onComplete() {
+            hideViewRetry();
             hideViewLoading();
+            showViewContent();
         }
 
         @Override
         public void onError(@NonNull Throwable e) {
             hideViewLoading();
+            hideViewContent();
             showErrorMessage(new DefaultErrorBundle((Exception) e));
             showViewRetry();
         }
 
         @Override
         public void onNext(@NonNull List<Product> products) {
-            showProductsCollectionView(products);
+            showProductListInView(products);
         }
     }
 }
